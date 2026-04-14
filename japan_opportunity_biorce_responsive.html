@@ -1,0 +1,224 @@
+
+<h2 class="sr-only">Responsive Biorce-branded interactive comparison of AI clinical trials opportunity across Japan, US, and EU with full source citations.</h2>
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --bg: #0B0B13; --surface: #14141F; --surface2: #1C1C2A; --teal: #00D4AA; --teal-dim: #00A88A; --teal-bg: #002E25; --teal-light: #00E5BE; --txt: #F0F0F5; --txt2: #8A8A9E; --txt3: #5A5A6E; --border: rgba(255,255,255,0.08); --red-bg: #2A1018; --red: #FF6B7A; --amber-bg: #2A2010; --amber: #FFBB55; --green-bg: #0A2A1E; --green: #00E5AA; }
+  .outer { background: var(--bg); border-radius: 12px; padding: 1.5rem; color: var(--txt); font-family: var(--font-sans); }
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tab { padding: 10px 16px; font-size: 13px; font-weight: 500; color: var(--txt3); cursor: pointer; border: none; border-bottom: 2px solid transparent; transition: all 0.2s; background: none; white-space: nowrap; flex-shrink: 0; }
+  .tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+  .tab:hover { color: var(--txt2); }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .g3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .metric { background: var(--surface); border-radius: 10px; padding: 1rem; }
+  .metric-label { font-size: 12px; color: var(--txt2); margin-bottom: 4px; }
+  .metric-val { font-size: 22px; font-weight: 500; color: var(--txt); }
+  .metric-sub { font-size: 11px; color: var(--txt3); margin-top: 2px; }
+  .ref { display: inline-block; font-size: 9px; font-weight: 500; color: var(--teal); background: var(--teal-bg); border-radius: 3px; padding: 1px 4px; margin-left: 3px; cursor: pointer; vertical-align: super; line-height: 1; }
+  .ref:hover { background: #004D3D; }
+  .mcard { border-radius: 10px; padding: 1.25rem 1rem; border: 1px solid var(--border); background: var(--surface); }
+  .mcard.hl { background: var(--teal-bg); border-color: rgba(0,212,170,0.3); }
+  .mcard-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .mcard-country { font-size: 15px; font-weight: 500; color: var(--txt); }
+  .mcard.hl .mcard-country { color: var(--teal-light); }
+  .badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 6px; }
+  .b-r { background: var(--red-bg); color: var(--red); }
+  .b-a { background: var(--amber-bg); color: var(--amber); }
+  .b-g { background: var(--green-bg); color: var(--green); }
+  .ms { padding: 6px 0; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+  .ms:first-of-type { margin-top: 4px; }
+  .sl { color: var(--txt3); }
+  .mcard.hl .sl { color: var(--teal-dim); }
+  .sv { font-weight: 500; color: var(--txt2); text-align: right; }
+  .mcard.hl .sv { color: var(--teal-light); }
+  .fg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 1.5rem; }
+  .feat { background: var(--surface); border-radius: 8px; padding: 10px 12px; }
+  .feat-name { font-size: 11px; color: var(--txt3); margin-bottom: 2px; }
+  .feat-row { display: flex; align-items: center; gap: 6px; }
+  .fd { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .ft { font-size: 12px; font-weight: 500; color: var(--txt2); }
+  .insight { background: var(--teal-bg); border: 1px solid rgba(0,212,170,0.2); border-radius: 8px; padding: 1rem 1.25rem; font-size: 13px; line-height: 1.6; color: var(--teal-light); }
+  .rc { background: var(--surface); border-radius: 10px; padding: 1.25rem; text-align: center; }
+  .rc-f { font-size: 13px; font-weight: 500; color: var(--txt3); margin-bottom: 4px; }
+  .rc-b { font-size: 32px; font-weight: 500; color: var(--txt); }
+  .rc.best .rc-b { color: var(--teal); }
+  .rc-s { font-size: 12px; color: var(--txt3); margin-top: 4px; }
+  .rc.best { background: var(--teal-bg); border: 1px solid rgba(0,212,170,0.2); }
+  .rc.best .rc-s { color: var(--teal-dim); }
+  .br { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .bl { font-size: 13px; font-weight: 500; color: var(--txt); min-width: 52px; }
+  .bt { flex: 1; height: 28px; background: var(--surface); border-radius: 6px; overflow: hidden; }
+  .bf { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 10px; font-size: 12px; font-weight: 500; transition: width 0.6s ease; }
+  .bf.jp { background: var(--teal); color: #0B0B13; }
+  .bf.dm { background: var(--surface2); color: var(--txt3); }
+  .st { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 14px; font-size: 12px; font-weight: 500; color: var(--txt3); cursor: pointer; margin-top: 1.25rem; display: inline-flex; align-items: center; gap: 6px; }
+  .st:hover { background: var(--surface2); color: var(--txt2); }
+  .sp { display: none; margin-top: 10px; padding: 1rem; background: var(--surface); border-radius: 8px; font-size: 11px; line-height: 1.8; color: var(--txt3); overflow-x: auto; }
+  .sp.open { display: block; }
+  .sp a { color: var(--teal-dim); text-decoration: none; }
+  .sp a:hover { text-decoration: underline; color: var(--teal); }
+  .si { display: inline-block; font-size: 9px; font-weight: 500; color: var(--teal); background: var(--teal-bg); border-radius: 3px; padding: 1px 4px; margin-right: 4px; min-width: 16px; text-align: center; }
+  .sd { color: var(--txt3); font-size: 10px; }
+  @media (max-width: 600px) {
+    .outer { padding: 1rem; border-radius: 8px; }
+    .g3 { grid-template-columns: 1fr; }
+    .fg { grid-template-columns: 1fr; }
+    .tab { padding: 8px 12px; font-size: 12px; }
+    .metric-val { font-size: 20px; }
+    .rc-b { font-size: 28px; }
+    .insight { font-size: 12px; padding: 0.75rem 1rem; }
+    .ms { font-size: 11px; }
+    .sv { font-size: 11px; }
+    .bl { min-width: 44px; font-size: 12px; }
+    .bf { font-size: 11px; padding-left: 8px; }
+  }
+  @media (min-width: 601px) and (max-width: 800px) {
+    .g3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .g3 > :last-child { grid-column: 1 / -1; }
+    .fg { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .fg > :nth-child(3n) { grid-column: auto; }
+  }
+</style>
+
+<div class="outer">
+  <div class="tabs">
+    <button class="tab active" onclick="show(0)">1. Market context</button>
+    <button class="tab" onclick="show(1)">2. Maturity vs. unmet need</button>
+    <button class="tab" onclick="show(2)">3. ROI per dollar deployed</button>
+  </div>
+
+  <div class="panel active" id="p0">
+    <div class="g3">
+      <div class="metric">
+        <div class="metric-label">Japan biotech 2026</div>
+        <div class="metric-val">$35B <span class="ref" onclick="toggleSrc(0)">1</span></div>
+        <div class="metric-sub">AI trials: $52M by 2030, 22% CAGR <span class="ref" onclick="toggleSrc(0)">3</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">US biotech 2026</div>
+        <div class="metric-val">$740B <span class="ref" onclick="toggleSrc(0)">4</span></div>
+        <div class="metric-sub">AI trials: ~$1B, 35% global share <span class="ref" onclick="toggleSrc(0)">6</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">EU biotech 2026</div>
+        <div class="metric-val">$1,430B <span class="ref" onclick="toggleSrc(0)">7</span></div>
+        <div class="metric-sub">AI trials: ~$0.8B, 28% share <span class="ref" onclick="toggleSrc(0)">8</span></div>
+      </div>
+    </div>
+    <div style="position: relative; width: 100%; height: 260px;">
+      <canvas id="sizeChart" role="img" aria-label="Grouped bar chart of biotech and AI trials market sizes">Biotech: Japan $35B, US $740B, EU $1430B. AI trials: Japan $0.05B, US $1B, EU $0.8B.</canvas>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px; font-size: 12px; color: var(--txt3);">
+      <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; border-radius: 2px; background: #1C1C2A; border: 1px solid rgba(255,255,255,0.15);"></span>Biotech market ($B)</span>
+      <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; border-radius: 2px; background: #00D4AA;"></span>AI clinical trials ($B)</span>
+    </div>
+    <div class="insight" style="margin-top: 1.25rem;">Biorce already operates across US, EU & APAC <span class="ref" onclick="toggleSrc(0)">B</span>. The question isn't where can we sell — it's where does the next dollar return the most.</div>
+    <button class="st" onclick="toggleSrc(0)"><span style="font-size: 14px; color: var(--teal);">&#9432;</span> Sources & freshness</button>
+    <div class="sp" id="src0"></div>
+  </div>
+
+  <div class="panel" id="p1">
+    <div class="g3">
+      <div class="mcard">
+        <div class="mcard-head"><span class="mcard-country">US</span><span class="badge b-r">Crowded</span></div>
+        <div class="ms"><span class="sl">AI competitors</span><span class="sv">1,000+ <span class="ref" onclick="toggleSrc(1)">4</span></span></div>
+        <div class="ms"><span class="sl">Incumbents</span><span class="sv">IQVIA, Mendel <span class="ref" onclick="toggleSrc(1)">6</span></span></div>
+        <div class="ms"><span class="sl">Trial timeline</span><span class="sv">8–12 mo <span class="ref" onclick="toggleSrc(1)">9</span></span></div>
+        <div class="ms"><span class="sl">FDA design</span><span class="sv">Adaptive, mature <span class="ref" onclick="toggleSrc(1)">5</span></span></div>
+        <div class="ms"><span class="sl">Marginal win</span><span class="sv" style="color:var(--red);">Incremental</span></div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-head"><span class="mcard-country">EU</span><span class="badge b-a">Compliance-heavy</span></div>
+        <div class="ms"><span class="sl">AI regulation</span><span class="sv">AI Act (high-risk) <span class="ref" onclick="toggleSrc(1)">8</span></span></div>
+        <div class="ms"><span class="sl">Structure</span><span class="sv">27-state frag. <span class="ref" onclick="toggleSrc(1)">7</span></span></div>
+        <div class="ms"><span class="sl">Trial timeline</span><span class="sv">10–14 mo <span class="ref" onclick="toggleSrc(1)">9</span></span></div>
+        <div class="ms"><span class="sl">AI cert. time</span><span class="sv">18+ mo <span class="ref" onclick="toggleSrc(1)">8</span></span></div>
+        <div class="ms"><span class="sl">Marginal win</span><span class="sv" style="color:var(--amber);">Moderate, slow</span></div>
+      </div>
+      <div class="mcard hl">
+        <div class="mcard-head"><span class="mcard-country">Japan</span><span class="badge b-g">Greenfield</span></div>
+        <div class="ms"><span class="sl">AI competitors</span><span class="sv">Near zero <span class="ref" onclick="toggleSrc(1)">3</span></span></div>
+        <div class="ms"><span class="sl">Govt. mandate</span><span class="sv">Society 5.0 <span class="ref" onclick="toggleSrc(1)">2</span></span></div>
+        <div class="ms"><span class="sl">Trial timeline</span><span class="sv">12–18 mo <span class="ref" onclick="toggleSrc(1)">9</span></span></div>
+        <div class="ms"><span class="sl">Recruit. failure</span><span class="sv">47% <span class="ref" onclick="toggleSrc(1)">10</span></span></div>
+        <div class="ms"><span class="sl">Marginal win</span><span class="sv" style="color:var(--teal);">Transformational</span></div>
+      </div>
+    </div>
+    <div style="margin-bottom: 1rem; font-size: 13px; font-weight: 500; color: var(--txt3);">Aika's features vs. market pain <span class="ref" onclick="toggleSrc(1)">B</span></div>
+    <div class="fg">
+      <div class="feat"><div class="feat-name">Explainable AI</div><div class="feat-row"><span class="fd" style="background:var(--txt3);"></span><span class="ft">US: table stakes</span></div></div>
+      <div class="feat"><div class="feat-name">Explainable AI</div><div class="feat-row"><span class="fd" style="background:var(--amber);"></span><span class="ft">EU: required, not rare</span></div></div>
+      <div class="feat"><div class="feat-name">Explainable AI</div><div class="feat-row"><span class="fd" style="background:var(--teal);"></span><span class="ft">Japan: decisive moat</span></div></div>
+      <div class="feat"><div class="feat-name">Amendment prevention</div><div class="feat-row"><span class="fd" style="background:var(--txt3);"></span><span class="ft">US: nice to have</span></div></div>
+      <div class="feat"><div class="feat-name">Amendment prevention</div><div class="feat-row"><span class="fd" style="background:var(--amber);"></span><span class="ft">EU: valued, competitive</span></div></div>
+      <div class="feat"><div class="feat-name">Amendment prevention</div><div class="feat-row"><span class="fd" style="background:var(--teal);"></span><span class="ft">Japan: mission critical</span></div></div>
+      <div class="feat"><div class="feat-name">Feasibility speed</div><div class="feat-row"><span class="fd" style="background:var(--txt3);"></span><span class="ft">US: marginal gain</span></div></div>
+      <div class="feat"><div class="feat-name">Feasibility speed</div><div class="feat-row"><span class="fd" style="background:var(--amber);"></span><span class="ft">EU: moderate gain</span></div></div>
+      <div class="feat"><div class="feat-name">Feasibility speed</div><div class="feat-row"><span class="fd" style="background:var(--teal);"></span><span class="ft">Japan: 47% fail → urgent</span></div></div>
+    </div>
+    <div class="insight">In the US, Aika competes on features. In Japan, Aika solves a crisis. Same product — 3x the urgency, zero the competition.</div>
+    <button class="st" onclick="toggleSrc(1)"><span style="font-size: 14px; color: var(--teal);">&#9432;</span> Sources & freshness</button>
+    <div class="sp" id="src1"></div>
+  </div>
+
+  <div class="panel" id="p2">
+    <div class="g3">
+      <div class="rc best">
+        <div class="rc-f">Japan</div>
+        <div class="rc-b">3.2x</div>
+        <div class="rc-s">Est. return per $1 deployed <span class="ref" onclick="toggleSrc(2)">*</span></div>
+      </div>
+      <div class="rc">
+        <div class="rc-f">EU</div>
+        <div class="rc-b">1.4x</div>
+        <div class="rc-s">Compliance drag lowers ROI</div>
+      </div>
+      <div class="rc">
+        <div class="rc-f">US</div>
+        <div class="rc-b">1.1x</div>
+        <div class="rc-s">Saturated — competing on price</div>
+      </div>
+    </div>
+    <div style="margin-bottom: 12px; font-size: 13px; font-weight: 500; color: var(--txt3);">Time saved by Aika per trial <span class="ref" onclick="toggleSrc(2)">9</span> <span class="ref" onclick="toggleSrc(2)">B</span></div>
+    <div class="br"><span class="bl">Japan</span><div class="bt"><div class="bf jp" id="bJP" style="width: 0%;">3–7 months saved</div></div></div>
+    <div class="br"><span class="bl">EU</span><div class="bt"><div class="bf dm" id="bEU" style="width: 0%;">2–3 months saved</div></div></div>
+    <div class="br"><span class="bl">US</span><div class="bt"><div class="bf dm" id="bUS" style="width: 0%;">1–2 months saved</div></div></div>
+    <div style="position: relative; width: 100%; height: 220px; margin-top: 1.5rem;">
+      <canvas id="savingsChart" role="img" aria-label="Bar chart of estimated annual savings per 10-trial pipeline">Annual savings: Japan $2.7M, EU $1M, US $0.5M</canvas>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px; margin-bottom: 1.25rem; font-size: 12px; color: var(--txt3);">
+      <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; border-radius: 2px; background: var(--teal);"></span>Est. annual savings / 10-trial pipeline ($M)</span>
+    </div>
+    <div class="insight">Aika's 50% amendment reduction and 90% faster drafts <span class="ref" onclick="toggleSrc(2)">B</span> compound most where timelines are longest <span class="ref" onclick="toggleSrc(2)">9</span> and failure rates highest <span class="ref" onclick="toggleSrc(2)">10</span>. Japan isn't a smaller opportunity — it's a higher-yield one.</div>
+    <button class="st" onclick="toggleSrc(2)"><span style="font-size: 14px; color: var(--teal);">&#9432;</span> Sources & freshness</button>
+    <div class="sp" id="src2"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+var srcHTML = '<div><span class="si">1</span> IMARC Group — Japan Biotech Market <span class="sd">2025</span> <a href="https://www.imarcgroup.com/japan-biotechnology-market" target="_blank">imarcgroup.com</a></div>'
++'<div><span class="si">2</span> LinkedIn/IMARC — Japan Biotech 2026-34 <span class="sd">Mar 2026</span> <a href="https://www.linkedin.com/pulse/japan-biotechnology-market-size-demand-growth-20262034-sharma-rc68c" target="_blank">linkedin.com</a></div>'
++'<div><span class="si">3</span> Grand View Research — Japan AI Clinical Trials 2030 <span class="sd">2025</span> <a href="https://www.grandviewresearch.com/horizon/outlook/ai-based-clinical-trials-solution-provider-market/japan" target="_blank">grandviewresearch.com</a></div>'
++'<div><span class="si">4</span> NovaOne Advisor — US Biotech 2026-35 <span class="sd">Jan 2026</span> <a href="https://www.novaoneadvisor.com/report/us-biotechnology-market" target="_blank">novaoneadvisor.com</a></div>'
++'<div><span class="si">5</span> Business20 — AI Trials Market Trends <span class="sd">Dec 2025</span> <a href="https://business20channel.tv/ai-clinical-trials-market-size-trends-research-2026-uk-europe-us-canada-12-december-2024" target="_blank">business20channel.tv</a></div>'
++'<div><span class="si">6</span> Precedence Research — Global AI in Clinical Trials <span class="sd">2025</span> <a href="https://www.precedenceresearch.com/ai-in-clinical-trials-market" target="_blank">precedenceresearch.com</a></div>'
++'<div><span class="si">7</span> DataBridge — Europe Biotech to 2033 <span class="sd">2025</span> <a href="https://www.databridgemarketresearch.com/reports/europe-biotechnology-market" target="_blank">databridgemarketresearch.com</a></div>'
++'<div><span class="si">8</span> LinkedIn — EU AI Clinical Trials Providers <span class="sd">Jul 2025</span> <a href="https://www.linkedin.com/pulse/europe-ai-based-clinical-trials-solution-1lfnf" target="_blank">linkedin.com</a></div>'
++'<div><span class="si">9</span> Credevo — Japan Clinical Trial Regulatory Process <span class="sd">2024</span> <a href="https://credevo.com/articles/2018/08/16/japan-clinical-trial-regulatory-process/" target="_blank">credevo.com</a></div>'
++'<div><span class="si">10</span> LinkedIn — Japan Clinical Research + AI <span class="sd">Nov 2025</span> <a href="https://www.linkedin.com/pulse/japan-clinical-research-market-size-2026-ai-integration-txbkf" target="_blank">linkedin.com</a></div>'
++'<div><span class="si">B</span> Biorce — Platform & operational impact <span class="sd">2026</span> <a href="https://www.biorce.com/our-platform" target="_blank">biorce.com</a></div>'
++'<div><span class="si">T</span> tech.eu — Biorce raises €52M <span class="sd">Feb 2026</span> <a href="https://tech.eu/2026/02/02/biorce-raises-52m-to-support-global-rollout-of-its-ai-clinical-trial-platform/" target="_blank">tech.eu</a></div>'
++'<div style="margin-top:8px;font-size:10px;color:var(--txt3);">* ROI multiplier is directional estimate from timeline savings (src 9), Aika claims (src B), and competition density (src 3,4,6). All sources 2025–2026. Variances ±10%; midpoints used.</div>';
+document.getElementById('src0').innerHTML=srcHTML;
+document.getElementById('src1').innerHTML=srcHTML;
+document.getElementById('src2').innerHTML=srcHTML;
+function show(i){document.querySelectorAll('.panel').forEach(function(p,x){p.classList.toggle('active',x===i)});document.querySelectorAll('.tab').forEach(function(t,x){t.classList.toggle('active',x===i)});if(i===2)animateBars();}
+function toggleSrc(i){document.getElementById('src'+i).classList.toggle('open');}
+function animateBars(){setTimeout(function(){document.getElementById('bJP').style.width='85%'},100);setTimeout(function(){document.getElementById('bEU').style.width='42%'},200);setTimeout(function(){document.getElementById('bUS').style.width='24%'},300);}
+var teal='#00D4AA',txtC='#8A8A9E',gridC='rgba(255,255,255,0.06)';
+new Chart(document.getElementById('sizeChart'),{type:'bar',data:{labels:['Japan','US','EU'],datasets:[{label:'Biotech ($B)',data:[35,740,1430],backgroundColor:'#1C1C2A',borderColor:'rgba(255,255,255,0.12)',borderWidth:1,borderRadius:4,barPercentage:0.6},{label:'AI trials ($B)',data:[0.052,1.0,0.8],backgroundColor:teal,borderRadius:4,barPercentage:0.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#14141F',titleColor:'#F0F0F5',bodyColor:'#8A8A9E',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,callbacks:{label:function(c){return c.dataset.label+': $'+(c.parsed.y<1?(c.parsed.y*1000).toFixed(0)+'M':c.parsed.y.toLocaleString()+'B')}}}},scales:{x:{grid:{display:false},ticks:{color:txtC,font:{size:13}}},y:{grid:{color:gridC},ticks:{color:txtC,font:{size:11},callback:function(v){return '$'+v+'B'}},beginAtZero:true}}}});
+new Chart(document.getElementById('savingsChart'),{type:'bar',data:{labels:['Japan','EU','US'],datasets:[{data:[2.7,1.0,0.5],backgroundColor:[teal,'#1C1C2A','#1C1C2A'],borderColor:['transparent','rgba(255,255,255,0.12)','rgba(255,255,255,0.12)'],borderWidth:[0,1,1],borderRadius:4,barPercentage:0.45}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#14141F',titleColor:'#F0F0F5',bodyColor:'#8A8A9E',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,callbacks:{label:function(c){return '$'+c.parsed.y.toFixed(1)+'M avg annual savings'}}}},scales:{x:{grid:{display:false},ticks:{color:txtC,font:{size:13}}},y:{grid:{color:gridC},ticks:{color:txtC,font:{size:11},callback:function(v){return '$'+v+'M'}},beginAtZero:true,max:4}}}});
+</script>
